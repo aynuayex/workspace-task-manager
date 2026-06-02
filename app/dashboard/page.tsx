@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useTransition } from "react";
+import React, { useState, useEffect, useTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { logout } from "@/app/auth/actions";
@@ -73,7 +73,7 @@ const usersFetcher = async (): Promise<UserProfile[]> => {
   return data || [];
 };
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -1038,5 +1038,20 @@ export default function DashboardPage() {
         })()
       )}
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        <div className="text-center space-y-4">
+          <Loader2 className="animate-spin h-10 w-10 text-purple-500 mx-auto" />
+          <p className="text-zinc-500 text-sm font-medium tracking-wide">Loading workspace dashboard...</p>
+        </div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
