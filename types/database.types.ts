@@ -139,7 +139,14 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      users: {
+        Row: {
+          id: string
+          email: string
+          full_name: string
+        }
+        Relationships: []
+      }
     }
     Functions: {
       is_workspace_member: {

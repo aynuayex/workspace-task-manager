@@ -48,6 +48,23 @@ create table public.tasks (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+-- Create a secure view for workspace users to display names/emails safely without exposing auth credentials
+create or replace view public.users as
+select
+  u.id,
+  u.email,
+  coalesce(u.raw_user_meta_data->>'full_name', split_part(u.email, '@', 1)) as full_name
+from auth.users u
+where exists (
+  select 1 from public.workspace_members wm_current
+  where wm_current.user_id = auth.uid()
+  and exists (
+    select 1 from public.workspace_members wm_other
+    where wm_other.workspace_id = wm_current.workspace_id
+    and wm_other.user_id = u.id
+  )
+);
+
 -- Enable Row Level Security (RLS) on all tables
 alter table public.workspaces enable row level security;
 alter table public.workspace_members enable row level security;
