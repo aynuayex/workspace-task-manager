@@ -4,6 +4,8 @@ import React, { useState, useEffect, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { logout } from "@/app/auth/actions";
+import { env } from "@/utils/env";
+import { Database } from "@/types/database.types";
 import useSWR from "swr";
 import { 
   FolderKanban, 
@@ -24,35 +26,51 @@ import {
   RefreshCw
 } from "lucide-react";
 
-// SWR Fetcher using Supabase Client
-const fetcher = async ({ queryKey, params }: { queryKey: string; params: any }) => {
+type Workspace = Database["public"]["Tables"]["workspaces"]["Row"];
+type Project = Database["public"]["Tables"]["projects"]["Row"];
+type Task = Database["public"]["Tables"]["tasks"]["Row"];
+type UserProfile = Database["public"]["Views"]["users"]["Row"];
+
+// SWR Fetchers
+const workspacesFetcher = async (): Promise<Workspace[]> => {
   const supabase = createClient();
-  
-  if (queryKey === "workspaces") {
-    const { data, error } = await supabase.from("workspaces").select("*").order("created_at", { ascending: true });
-    if (error) throw error;
-    return data;
-  }
-  
-  if (queryKey === "projects" && params.workspaceId) {
-    const { data, error } = await supabase.from("projects").select("*").eq("workspace_id", params.workspaceId).order("created_at", { ascending: true });
-    if (error) throw error;
-    return data;
-  }
-  
-  if (queryKey === "tasks" && params.projectId) {
-    const { data, error } = await supabase.from("tasks").select("*").eq("project_id", params.projectId).order("created_at", { ascending: false });
-    if (error) throw error;
-    return data;
-  }
-  
-  if (queryKey === "users") {
-    const { data, error } = await supabase.from("users").select("*");
-    if (error) throw error;
-    return data;
-  }
-  
-  return null;
+  const { data, error } = await supabase
+    .from("workspaces")
+    .select("*")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data || [];
+};
+
+const projectsFetcher = async (wsId: string): Promise<Project[]> => {
+  if (!wsId) return [];
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("workspace_id", wsId)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data || [];
+};
+
+const tasksFetcher = async (projId: string): Promise<Task[]> => {
+  if (!projId) return [];
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("project_id", projId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data || [];
+};
+
+const usersFetcher = async (): Promise<UserProfile[]> => {
+  const supabase = createClient();
+  const { data, error } = await supabase.from("users").select("*");
+  if (error) throw error;
+  return data || [];
 };
 
 export default function DashboardPage() {
@@ -101,25 +119,25 @@ export default function DashboardPage() {
     setTimeout(() => setBannerMessage(null), 5000);
   };
 
-  // SWR queries
-  const { data: workspaces, error: wsError, isLoading: wsLoading, mutate: mutateWorkspaces } = useSWR(
-    { queryKey: "workspaces", params: {} },
-    fetcher
+  // SWR queries with explicit type annotations
+  const { data: workspaces, error: wsError, isLoading: wsLoading, mutate: mutateWorkspaces } = useSWR<Workspace[]>(
+    "workspaces",
+    workspacesFetcher
   );
 
-  const { data: projects, error: projError, isLoading: projLoading, mutate: mutateProjects } = useSWR(
-    workspaceId ? { queryKey: "projects", params: { workspaceId } } : null,
-    fetcher
+  const { data: projects, error: projError, isLoading: projLoading, mutate: mutateProjects } = useSWR<Project[]>(
+    workspaceId ? ["projects", workspaceId] : null,
+    ([, wsId]) => projectsFetcher(wsId as string)
   );
 
-  const { data: tasks, error: tasksError, isLoading: tasksLoading, mutate: mutateTasks } = useSWR(
-    projectId ? { queryKey: "tasks", params: { projectId } } : null,
-    fetcher
+  const { data: tasks, error: tasksError, isLoading: tasksLoading, mutate: mutateTasks } = useSWR<Task[]>(
+    projectId ? ["tasks", projectId] : null,
+    ([, projId]) => tasksFetcher(projId as string)
   );
 
-  const { data: users, error: usersError, isLoading: usersLoading } = useSWR(
-    { queryKey: "users", params: {} },
-    fetcher
+  const { data: users, error: usersError, isLoading: usersLoading } = useSWR<UserProfile[]>(
+    "users",
+    usersFetcher
   );
 
   // Setup initial redirection if missing workspaceId or projectId
@@ -347,7 +365,7 @@ export default function DashboardPage() {
       // Call Supabase Edge Function using fetch (since supabase.functions.invoke accesses edge endpoint)
       // Standard local Supabase Edge Functions serve on: http://localhost:54321/functions/v1/overdue-tasks
       // Online functions serve on: https://[project_id].supabase.co/functions/v1/overdue-tasks
-      const funcUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/overdue-tasks`;
+      const funcUrl = `${env.supabaseUrl}/functions/v1/overdue-tasks`;
       
       const response = await fetch(funcUrl, {
         method: "POST",
