@@ -378,6 +378,16 @@ export function TaskBoard({
                           ) : (
                             <>
                               <button
+                                onClick={() => setActiveTaskPanel(activeTaskPanel === task.id ? null : task.id)}
+                                className={`px-2.5 py-1.5 rounded text-xs font-semibold transition cursor-pointer ${
+                                  activeTaskPanel === task.id
+                                    ? "bg-purple-600 hover:bg-purple-500 text-white font-bold"
+                                    : "bg-zinc-150 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300"
+                                }`}
+                              >
+                                Details
+                              </button>
+                              <button
                                 onClick={() => startEditing(task)}
                                 className="px-2.5 py-1.5 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition cursor-pointer"
                               >
