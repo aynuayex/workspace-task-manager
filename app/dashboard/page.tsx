@@ -290,7 +290,6 @@ function DashboardContent() {
 
   // Actions: Delete Task
   const handleDeleteTask = async (taskId: string) => {
-    if (!confirm("Are you sure you want to delete this task?")) return;
 
     try {
       const { error } = await supabase.from("tasks").delete().eq("id", taskId);
