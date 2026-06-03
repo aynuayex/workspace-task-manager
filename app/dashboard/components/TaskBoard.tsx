@@ -83,7 +83,7 @@ export function TaskBoard({
   if (!projectId) {
     return (
       <div className="p-16 text-center space-y-4 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-950/20">
-        <Briefcase className="h-12 w-12 text-zinc-400 dark:text-zinc-650 mx-auto" />
+        <Briefcase className="h-12 w-12 text-zinc-400 dark:text-zinc-600 mx-auto" />
         <div>
           <h4 className="font-bold text-zinc-900 dark:text-white text-base">No active projects found</h4>
           <p className="text-xs text-zinc-550 dark:text-zinc-400 mt-1">
@@ -177,7 +177,7 @@ export function TaskBoard({
 
       {/* Tasks List */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950/20">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/20">
           <h3 className="font-bold text-sm uppercase text-zinc-500 dark:text-zinc-400">Tasks Listing</h3>
           <button
             onClick={() => setIsCreatingTask(!isCreatingTask)}
@@ -189,7 +189,7 @@ export function TaskBoard({
         </div>
 
         {isCreatingTask && (
-          <form onSubmit={handleCreateTask} className="p-6 border-b border-zinc-150 dark:border-zinc-850 bg-zinc-50/20 dark:bg-zinc-950/40 space-y-4">
+          <form onSubmit={handleCreateTask} className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-950/40 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Title</label>
@@ -199,7 +199,7 @@ export function TaskBoard({
                   placeholder="Task title..."
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-850 dark:text-white outline-none focus:border-purple-500"
+                  className="w-full text-xs px-3 py-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-white outline-none focus:border-purple-500"
                 />
               </div>
               <div>
@@ -209,7 +209,7 @@ export function TaskBoard({
                   placeholder="Short description..."
                   value={newTaskDesc}
                   onChange={(e) => setNewTaskDesc(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-850 dark:text-white outline-none focus:border-purple-500"
+                  className="w-full text-xs px-3 py-2 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-white outline-none focus:border-purple-500"
                 />
               </div>
             </div>
@@ -240,7 +240,7 @@ export function TaskBoard({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm border-collapse min-w-[700px]">
               <thead>
-                <tr className="border-b border-zinc-150 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950/20 text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
+                <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/20 text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
                   <th className="px-6 py-4 w-[120px]">Status</th>
                   <th className="px-6 py-4">Task Information</th>
                   <th className="px-6 py-4 w-[160px]">Assignee</th>
@@ -248,7 +248,7 @@ export function TaskBoard({
                   <th className="px-6 py-4 text-right w-[120px]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-150 dark:divide-zinc-850">
+              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                 {filteredTasks.map((task) => {
                   const isPanelOpen = activeTaskPanel === task.id;
 
@@ -276,7 +276,7 @@ export function TaskBoard({
                         onClick={() => setActiveTaskPanel(isPanelOpen ? null : task.id)}
                       >
                         <div>
-                          <p className="font-bold text-zinc-850 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition">{task.title}</p>
+                          <p className="font-bold text-zinc-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition">{task.title}</p>
                           {task.description && (
                             <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">{task.description}</p>
                           )}
@@ -304,6 +304,7 @@ export function TaskBoard({
                         <DatePicker
                           value={task.due_date}
                           onChange={(dateStr) => handleTaskFieldSave(task.id, { due_date: dateStr })}
+                          align="top"
                         />
                       </td>
 
@@ -317,7 +318,7 @@ export function TaskBoard({
                           </button>
                           <button
                             onClick={() => handleDeleteTask(task.id)}
-                            className="p-1.5 rounded hover:bg-red-500/10 text-zinc-400 dark:text-zinc-500 hover:text-red-650 dark:hover:text-red-400 transition cursor-pointer"
+                            className="p-1.5 rounded hover:bg-red-500/10 text-zinc-400 dark:text-zinc-500 hover:text-red-600 dark:hover:text-red-400 transition cursor-pointer"
                             title="Delete Task"
                           >
                             <Trash2 className="h-4 w-4" />
