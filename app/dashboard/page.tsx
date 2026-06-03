@@ -470,7 +470,7 @@ function DashboardContent() {
           <div className={`p-4 text-sm text-center border-b font-medium transition-all ${
             bannerMessage.type === "success" 
               ? "bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20 text-green-600 dark:text-green-400" 
-              : "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-650 dark:text-red-400"
+              : "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400"
           }`}>
             {bannerMessage.text}
           </div>
@@ -522,8 +522,11 @@ function DashboardContent() {
                         {activeProject.name}
                       </h2>
                       <button
-                        onClick={() => setIsEditingProjectName(true)}
-                        className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition cursor-pointer"
+                        onClick={() => {
+                          setIsEditingProjectName(true);
+                          setEditingProjectName(activeProject.name);
+                        }}
+                        className="opacity-60 hover:opacity-100 focus:opacity-100 p-1 text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition cursor-pointer"
                         title="Rename project"
                       >
                         <Edit2 className="h-3.5 w-3.5" />
@@ -535,7 +538,7 @@ function DashboardContent() {
                 <h2 className="text-xl font-bold tracking-tight">Select a Project</h2>
               )}
               <p className="text-xs text-zinc-500 truncate">
-                Workspace: <span className="font-semibold text-zinc-655 dark:text-zinc-400">{activeWorkspace?.name || "None"}</span>
+                Workspace: <span className="font-semibold text-zinc-600 dark:text-zinc-400">{activeWorkspace?.name || "None"}</span>
               </p>
             </div>
           </div>
@@ -570,7 +573,7 @@ function DashboardContent() {
           <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
             {/* Overdue Task Panel Response */}
             {overdueError && (
-              <div className="p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-650 dark:text-red-400 text-xs flex justify-between items-center">
+              <div className="p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-xs flex justify-between items-center">
                 <span>{overdueError}</span>
                 <button onClick={() => setOverdueError(null)} className="p-1 hover:text-zinc-950 dark:hover:text-white">
                   <X className="h-3.5 w-3.5" />
