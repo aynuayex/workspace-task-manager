@@ -194,7 +194,7 @@ export function TaskBoard({
             <option value="all">All Assignees</option>
             <option value="unassigned">Unassigned Only</option>
             {users?.map((user) => (
-              <option key={user.id} value={user.id}>
+              <option key={user.id || ""} value={user.id || ""}>
                 {user.full_name} ({user.email})
               </option>
             ))}
@@ -328,8 +328,8 @@ export function TaskBoard({
                         >
                           <option value="">Unassigned</option>
                           {users?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                              {u.full_name}
+                            <option key={u.id || ""} value={u.id || ""}>
+                              {u.full_name || "Unknown"}
                             </option>
                           ))}
                         </select>

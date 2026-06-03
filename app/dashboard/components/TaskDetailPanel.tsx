@@ -162,8 +162,8 @@ export function TaskDetailPanel({
             >
               <option value="">Unassigned</option>
               {users?.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.full_name}
+                <option key={u.id || ""} value={u.id || ""}>
+                  {u.full_name || "Unknown"}
                 </option>
               ))}
             </select>
