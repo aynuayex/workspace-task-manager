@@ -268,11 +268,11 @@ export function TaskBoard({
             <table className="w-full text-left text-sm border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/20 text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
-                  <th className="px-6 py-4">Task Information</th>
-                  <th className="px-6 py-4 w-[160px]">Assignee</th>
-                  <th className="px-6 py-4 w-[160px]">Due Date</th>
-                  <th className="px-6 py-4 w-[120px]">Status</th>
-                  <th className="px-6 py-4 text-right w-[140px]">Actions</th>
+                  <th className="px-3 sm:px-6 py-4">Task Information</th>
+                  <th className="px-3 sm:px-6 py-4 w-[160px]">Assignee</th>
+                  <th className="px-3 sm:px-6 py-4 w-[160px]">Due Date</th>
+                  <th className="px-3 sm:px-6 py-4 w-[120px]">Status</th>
+                  <th className="px-3 sm:px-6 py-4 text-right w-[140px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -285,7 +285,7 @@ export function TaskBoard({
                       className={`group hover:bg-zinc-50/40 dark:hover:bg-zinc-950/40 transition duration-150 ${isEditing ? "bg-zinc-50/80 dark:bg-zinc-950/80 border-l-2 border-purple-500" : ""}`}
                     >
                       {/* Task Information Cell (Inline Editors) */}
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-4">
                         {isEditing ? (
                           <div className="space-y-2 max-w-md">
                             <input
@@ -320,11 +320,11 @@ export function TaskBoard({
                       </td>
 
                       {/* Assignee select dropdown */}
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-4">
                         <select
                           value={task.assignee_id || ""}
                           onChange={(e) => handleTaskFieldSave(task.id, { assignee_id: e.target.value || null })}
-                          className="text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-white rounded-lg px-2.5 py-1.5 outline-none cursor-pointer focus:ring-1 focus:ring-purple-500 w-full max-w-[140px] font-medium"
+                          className="text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-white rounded-lg px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-purple-500 w-full max-w-[80px] sm:max-w-[140px] font-medium"
                         >
                           <option value="">Unassigned</option>
                           {users?.map((u) => (
@@ -336,7 +336,7 @@ export function TaskBoard({
                       </td>
 
                       {/* Due date picker */}
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-4">
                         <DatePicker
                           value={task.due_date}
                           onChange={(dateStr) => handleTaskFieldSave(task.id, { due_date: dateStr })}
@@ -345,7 +345,7 @@ export function TaskBoard({
                       </td>
                       
                       {/* Status Dropdown */}
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-4">
                         <select
                           value={task.status}
                           onChange={(e) => handleStatusChange(task.id, e.target.value as Database["public"]["Enums"]["task_status"])}
@@ -358,7 +358,7 @@ export function TaskBoard({
                       </td>
 
                       {/* Actions cell */}
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-3 sm:px-6 py-4 text-right">
                         <div className="flex items-center justify-end space-x-2">
                           {isEditing ? (
                             <>
