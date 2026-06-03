@@ -37,8 +37,9 @@ Synapse is a high-performance, multi-tenant task management application built us
    - Filter state (Status & Assignee) is synchronized with URL search parameters.
    - Copy-pasting or sharing the link instantly loads the exact board filters and active project.
 
-6. **Elegantly Designed Inline Field Editors (R5)**
-   - Inline dropdowns, date pickers, and text inputs with clear save/cancel visual affordances.
+6. **Elegantly Designed Inline Field Editors & Project Rename (R5)**
+   - Inline dropdowns, custom date pickers, and text inputs with clear save/cancel visual affordances.
+   - Inline editing capability for active project names directly in the dashboard header.
    - Side panel details editor slide-in to edit long titles and descriptions without modal overlay shifts.
 
 7. **Production Grade UX States (R6)**
@@ -53,6 +54,18 @@ Synapse is a high-performance, multi-tenant task management application built us
    - Securely parses user's JWT from headers to initialize client, ensuring RLS checks apply.
    - Returns overdue tasks with resolved assignee names which display directly in a reports panel inside the UI.
 
+10. **Radix/Shadcn-style Calendar Date Picker**
+    - Custom Calendar/Popover-based Date Picker created under `components/date-picker.tsx` matching Shadcn UI aesthetics, applied to task list view and detail view editing.
+
+11. **Component Composition Architecture**
+    - Decomposed the monolithic dashboard into modular components (`Sidebar`, `TaskBoard`, `TaskDetailPanel`, `OverdueReport`) for improved separation of concerns.
+
+12. **Mobile Responsiveness**
+    - Built responsive drawer layout for the Sidebar menu, with mobile menu toggle and viewport optimizations.
+
+13. **Light/Dark Mode Theme Support**
+    - Configured system-wide next-themes support with a persistent toggle switcher on the dashboard.
+
 ---
 
 ### Architectural Decisions
@@ -60,6 +73,15 @@ Synapse is a high-performance, multi-tenant task management application built us
 * **Secure Users View:** Supabase stores user records inside the `auth.users` schema which is protected by default. To display workspace member names/emails in dropdown lists securely, a secure PostgreSQL view `public.users` was designed. It checks membership overlap so a user can only read details of users sharing a workspace.
 * **SWR Cache Isolation:** Separated SWR query hooks to maintain strict typescript types for `Workspace`, `Project`, and `Task` arrays rather than relying on a combined fetcher.
 * **Central Environment Variables:** A central configuration helper (`utils/env.ts`) guarantees that the Next.js server fails immediately during start-up if `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` are not set.
+
+---
+
+### What is Incomplete, Skipped, or Broken — and Why
+
+* **Incomplete / Broken:** None. All core requirements (R1–R6), optimistic UI (R7), and the Edge Function (R8) are fully implemented and functional.
+* **Skipped (Email Confirmation Verification):** We intentionally disabled email confirmation requirement ("Confirm email" toggle set to OFF in Supabase dashboard under Authentication -> Providers -> Email).
+  - *Why:* To allow evaluators to register any test email address on the live Vercel deployment and log in instantly without waiting for verification emails.
+* **Skipped (Third-party OAuth):** Focused strictly on the core email/password signup and login flow.
 
 ---
 
