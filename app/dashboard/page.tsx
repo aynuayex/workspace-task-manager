@@ -137,7 +137,7 @@ function DashboardContent() {
     ([, projId]) => tasksFetcher(projId as string)
   );
 
-  const { data: users, error: usersError, isLoading: usersLoading } = useSWR<UserProfile[]>(
+  const { data: users, error: usersError } = useSWR<UserProfile[]>(
     "users",
     usersFetcher
   );
@@ -167,6 +167,7 @@ function DashboardContent() {
   const activeProject = projects?.find((p) => p.id === projectId);
   useEffect(() => {
     if (activeProject) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditingProjectName(activeProject.name);
     }
   }, [activeProject]);

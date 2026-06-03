@@ -38,6 +38,7 @@ export function TaskDetailPanel({
   // Sync state with incoming task prop
   useEffect(() => {
     if (activeTask) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalTitle(activeTask.title);
       setLocalDesc(activeTask.description || "");
     }

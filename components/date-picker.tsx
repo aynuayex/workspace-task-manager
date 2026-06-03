@@ -10,7 +10,7 @@ interface DatePickerProps {
   align?: "top" | "bottom";
 }
 
-export function DatePicker({ value, onChange, align = "bottom" }: DatePickerProps) {
+export function DatePicker({ value, onChange }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<"days" | "months" | "years">("days");
@@ -47,6 +47,7 @@ export function DatePicker({ value, onChange, align = "bottom" }: DatePickerProp
 
   // Sync baseYear when currentMonth changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBaseYear(currentMonth.getFullYear());
   }, [currentMonth]);
 
