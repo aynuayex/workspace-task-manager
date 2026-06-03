@@ -117,6 +117,7 @@ export function TaskDetailPanel({
             <DatePicker
               value={activeTask.due_date}
               onChange={(dateStr) => handleTaskFieldSave(activeTask.id, { due_date: dateStr })}
+              align="top"
             />
           </div>
         </div>
