@@ -184,7 +184,7 @@ export function TaskBoard({
           ))}
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex sm:flex-row flex-col items-center gap-2 w-full sm:w-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 shrink-0">Assignee:</span>
           <select
             value={assigneeFilter}
