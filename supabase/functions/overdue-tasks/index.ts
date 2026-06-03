@@ -1,6 +1,21 @@
-// @ts-nocheck
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+
+interface TaskRow {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  assignee_id: string | null;
+  due_date: string | null;
+  created_at: string;
+}
+
+interface UserRow {
+  id: string;
+  full_name: string;
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -72,8 +87,10 @@ serve(async (req: Request) => {
       throw tasksError
     }
 
+    const typedTasks = tasks as TaskRow[]
+
     // Fetch assignee names using our public.users view
-    const assigneeIds = tasks.map((t: any) => t.assignee_id).filter(Boolean) as string[]
+    const assigneeIds = typedTasks.map((t: TaskRow) => t.assignee_id).filter(Boolean) as string[]
     const nameMap: Record<string, string> = {}
 
     if (assigneeIds.length > 0) {
@@ -83,14 +100,15 @@ serve(async (req: Request) => {
         .in('id', assigneeIds)
 
       if (!usersError && users) {
-        users.forEach((u: any) => {
+        const typedUsers = users as UserRow[]
+        typedUsers.forEach((u: UserRow) => {
           nameMap[u.id] = u.full_name
         })
       }
     }
 
     // Format final response array
-    const responseData = tasks.map((t: any) => ({
+    const responseData = typedTasks.map((t: TaskRow) => ({
       id: t.id,
       title: t.title,
       description: t.description,
@@ -104,8 +122,9 @@ serve(async (req: Request) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message || "An unexpected error occurred" }), {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred"
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
