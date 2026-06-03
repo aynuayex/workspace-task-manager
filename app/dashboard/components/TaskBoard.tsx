@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Database } from "@/types/database.types";
 import { 
   Briefcase, 
@@ -62,6 +62,14 @@ export function TaskBoard({
   updateURL,
   setIsCreatingProject,
 }: TaskBoardProps) {
+  // Local states for inline task editing
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+
+  // Local state for delete confirmation dialog
+  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
+
   // Filter tasks locally by status and assignee simultaneously
   const filteredTasks = tasks
     ? tasks.filter((task) => {
@@ -79,6 +87,25 @@ export function TaskBoard({
   const inProgressCount = tasks?.filter((t) => t.status === "in_progress").length || 0;
   const doneCount = tasks?.filter((t) => t.status === "done").length || 0;
   const totalCount = tasks?.length || 0;
+
+  const startEditing = (task: Task) => {
+    setEditingTaskId(task.id);
+    setEditTitle(task.title);
+    setEditDesc(task.description || "");
+  };
+
+  const handleInlineSave = async (taskId: string) => {
+    if (!editTitle.trim()) return;
+    try {
+      await handleTaskFieldSave(taskId, {
+        title: editTitle.trim(),
+        description: editDesc.trim() || null,
+      });
+      setEditingTaskId(null);
+    } catch (err) {
+      // Errors handled by parent bannerMutate
+    }
+  };
 
   if (!projectId) {
     return (
@@ -241,46 +268,55 @@ export function TaskBoard({
             <table className="w-full text-left text-sm border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/20 text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
-                  <th className="px-6 py-4 w-[120px]">Status</th>
                   <th className="px-6 py-4">Task Information</th>
                   <th className="px-6 py-4 w-[160px]">Assignee</th>
                   <th className="px-6 py-4 w-[160px]">Due Date</th>
-                  <th className="px-6 py-4 text-right w-[120px]">Actions</th>
+                  <th className="px-6 py-4 w-[120px]">Status</th>
+                  <th className="px-6 py-4 text-right w-[140px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                 {filteredTasks.map((task) => {
-                  const isPanelOpen = activeTaskPanel === task.id;
+                  const isEditing = editingTaskId === task.id;
 
                   return (
                     <tr 
                       key={task.id} 
-                      className={`group hover:bg-zinc-50/40 dark:hover:bg-zinc-950/40 transition duration-150 ${isPanelOpen ? "bg-zinc-50/80 dark:bg-zinc-950/80 border-l-2 border-purple-500" : ""}`}
+                      className={`group hover:bg-zinc-50/40 dark:hover:bg-zinc-950/40 transition duration-150 ${isEditing ? "bg-zinc-50/80 dark:bg-zinc-950/80 border-l-2 border-purple-500" : ""}`}
                     >
-                      {/* Status Dropdown */}
+                      {/* Task Information Cell (Inline Editors) */}
                       <td className="px-6 py-4">
-                        <select
-                          value={task.status}
-                          onChange={(e) => handleStatusChange(task.id, e.target.value as Database["public"]["Enums"]["task_status"])}
-                          className="text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-white rounded-lg px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-purple-500 font-semibold"
-                        >
-                          <option value="todo">To Do</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="done">Completed</option>
-                        </select>
-                      </td>
-
-                      {/* Clickable Info details */}
-                      <td 
-                        className="px-6 py-4 cursor-pointer"
-                        onClick={() => setActiveTaskPanel(isPanelOpen ? null : task.id)}
-                      >
-                        <div>
-                          <p className="font-bold text-zinc-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition">{task.title}</p>
-                          {task.description && (
-                            <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">{task.description}</p>
-                          )}
-                        </div>
+                        {isEditing ? (
+                          <div className="space-y-2 max-w-md">
+                            <input
+                              type="text"
+                              value={editTitle}
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              className="w-full text-xs px-2.5 py-1.5 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-bold outline-none focus:ring-1 focus:ring-purple-500"
+                              placeholder="Task title..."
+                              required
+                            />
+                            <input
+                              type="text"
+                              value={editDesc}
+                              onChange={(e) => setEditDesc(e.target.value)}
+                              className="w-full text-xs px-2.5 py-1.5 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 outline-none focus:ring-1 focus:ring-purple-500"
+                              placeholder="Description (Optional)..."
+                            />
+                          </div>
+                        ) : (
+                          <div 
+                            className="cursor-pointer"
+                            onClick={() => startEditing(task)}
+                          >
+                            <p className="font-bold text-zinc-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition">{task.title}</p>
+                            {task.description ? (
+                              <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">{task.description}</p>
+                            ) : (
+                              <p className="text-xs text-zinc-400 dark:text-zinc-600 italic mt-0.5">Add description...</p>
+                            )}
+                          </div>
+                        )}
                       </td>
 
                       {/* Assignee select dropdown */}
@@ -307,22 +343,55 @@ export function TaskBoard({
                           align="top"
                         />
                       </td>
+                      
+                      {/* Status Dropdown */}
+                      <td className="px-6 py-4">
+                        <select
+                          value={task.status}
+                          onChange={(e) => handleStatusChange(task.id, e.target.value as Database["public"]["Enums"]["task_status"])}
+                          className="text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-white rounded-lg px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-purple-500 font-semibold"
+                        >
+                          <option value="todo">To Do</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="done">Completed</option>
+                        </select>
+                      </td>
 
+                      {/* Actions cell */}
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => setActiveTaskPanel(isPanelOpen ? null : task.id)}
-                            className="px-2.5 py-1.5 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTask(task.id)}
-                            className="p-1.5 rounded hover:bg-red-500/10 text-zinc-400 dark:text-zinc-500 hover:text-red-600 dark:hover:text-red-400 transition cursor-pointer"
-                            title="Delete Task"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          {isEditing ? (
+                            <>
+                              <button
+                                onClick={() => handleInlineSave(task.id)}
+                                className="px-2.5 py-1.5 rounded bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition cursor-pointer"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => setEditingTaskId(null)}
+                                className="px-2.5 py-1.5 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition cursor-pointer"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => startEditing(task)}
+                                className="px-2.5 py-1.5 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition cursor-pointer"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => setDeletingTaskId(task.id)}
+                                className="p-1.5 rounded hover:bg-red-500/10 text-zinc-400 dark:text-zinc-500 hover:text-red-600 dark:hover:text-red-400 transition cursor-pointer"
+                                title="Delete Task"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -336,7 +405,7 @@ export function TaskBoard({
             <ListTodo className="h-12 w-12 text-zinc-400 dark:text-zinc-700 mx-auto" />
             <div>
               <h4 className="font-bold text-zinc-800 dark:text-white text-base">No tasks match filter search</h4>
-              <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">There are no tasks matching your selected filters in this project. Create a new task to get started.</p>
+              <p className="text-xs text-zinc-550 mt-1 max-w-sm mx-auto">There are no tasks matching your selected filters in this project. Create a new task to get started.</p>
             </div>
             <button
               onClick={() => setIsCreatingTask(true)}
@@ -347,6 +416,40 @@ export function TaskBoard({
           </div>
         )}
       </div>
+
+      {/* Custom Delete Confirmation Modal */}
+      {deletingTaskId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="space-y-1.5">
+              <h3 className="font-extrabold text-zinc-900 dark:text-white text-base">Delete Task</h3>
+              <p className="text-xs text-zinc-550 dark:text-zinc-400 leading-relaxed">
+                Are you sure you want to delete this task? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setDeletingTaskId(null)}
+                className="px-4 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const id = deletingTaskId;
+                  setDeletingTaskId(null);
+                  await handleDeleteTask(id);
+                }}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-600/10 transition cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
