@@ -22,8 +22,8 @@ export default function RegisterPage() {
         setError(result.error);
         setLoading(false);
       }
-    } catch (err: any) {
-      setError(err?.message || "An unexpected error occurred");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
       setLoading(false);
     }
   };
