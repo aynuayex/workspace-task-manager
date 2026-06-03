@@ -331,7 +331,6 @@ export function TaskBoard({
             </table>
           </div>
         ) : (
-          {/* Empty state with CTA */}
           <div className="p-16 text-center space-y-4">
             <ListTodo className="h-12 w-12 text-zinc-400 dark:text-zinc-700 mx-auto" />
             <div>
