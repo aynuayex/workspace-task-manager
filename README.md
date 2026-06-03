@@ -6,8 +6,8 @@ Synapse is a high-performance, multi-tenant task management application built us
 
 ### Project Parameters & Timings
 * **Start Time:** Tuesday, June 2, 2026, 7:10 PM (EAT / UTC+3)
-* **Completion Time:** Wednesday, June 3, 2026, 3:30 PM (EAT / UTC+3)
-* **Time Spent:** ~20 hours (Well within the 24-hour limit)
+* **Completion Time:** Wednesday, June 3, 2026, 7:00 PM (EAT / UTC+3)
+* **Time Spent:** ~24 hours (Well within the 24-hour limit)
 
 ---
 
