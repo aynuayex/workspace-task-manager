@@ -191,9 +191,11 @@ create policy "Workspace members can delete tasks"
 create or replace function public.handle_new_workspace()
 returns trigger as $$
 begin
-  insert into public.workspace_members (workspace_id, user_id, role)
-  values (new.id, auth.uid(), 'owner')
-  on conflict do nothing;
+  if auth.uid() is not null then
+    insert into public.workspace_members (workspace_id, user_id, role)
+    values (new.id, auth.uid(), 'owner')
+    on conflict do nothing;
+  end if;
   return new;
 end;
 $$ language plpgsql security definer;
@@ -245,10 +247,10 @@ VALUES
 ('22222222-2222-2222-2222-222222222222', 'user2@example.com', crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{"full_name":"Jane Smith"}', 'authenticated', 'authenticated', now(), now())
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
 VALUES 
-('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', '{"sub":"11111111-1111-1111-1111-111111111111","email":"user1@example.com"}', 'email', now(), now(), now()),
-('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', '{"sub":"22222222-2222-2222-2222-222222222222","email":"user2@example.com"}', 'email', now(), now(), now())
+('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', '{"sub":"11111111-1111-1111-1111-111111111111","email":"user1@example.com"}', 'email', '11111111-1111-1111-1111-111111111111', now(), now(), now()),
+('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', '{"sub":"22222222-2222-2222-2222-222222222222","email":"user2@example.com"}', 'email', '22222222-2222-2222-2222-222222222222', now(), now(), now())
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert workspaces
@@ -297,16 +299,16 @@ ON CONFLICT (id) DO NOTHING;
 -- Stark Industries - Arc Reactor
 INSERT INTO public.tasks (id, project_id, title, description, status, assignee_id, due_date, created_at)
 VALUES 
-('g1111111-1111-1111-1111-111111111111', 'd1111111-1111-1111-1111-111111111111', 'Synthesize Palladium Core', 'Prepare high-purity palladium samples for test runs.', 'done', '22222222-2222-2222-2222-222222222222', now() - interval '5 days', now() - interval '15 days'),
-('g2222222-2222-2222-2222-222222222222', 'd1111111-1111-1111-1111-111111111111', 'Assemble Containment Ring', 'Join the magnetic coils with the vacuum chamber housing.', 'in_progress', '22222222-2222-2222-2222-222222222222', now() + interval '3 days', now() - interval '8 days'),
-('g3333333-3333-3333-3333-333333333333', 'd1111111-1111-1111-1111-111111111111', 'Calibrate Energy Output', 'Run diagnostic simulations to control thermal spike hazards.', 'todo', '22222222-2222-2222-2222-222222222222', now() - interval '2 hours', now() - interval '2 days')
+('71111111-1111-1111-1111-111111111111', 'd1111111-1111-1111-1111-111111111111', 'Synthesize Palladium Core', 'Prepare high-purity palladium samples for test runs.', 'done', '22222222-2222-2222-2222-222222222222', now() - interval '5 days', now() - interval '15 days'),
+('72222222-2222-2222-2222-222222222222', 'd1111111-1111-1111-1111-111111111111', 'Assemble Containment Ring', 'Join the magnetic coils with the vacuum chamber housing.', 'in_progress', '22222222-2222-2222-2222-222222222222', now() + interval '3 days', now() - interval '8 days'),
+('73333333-3333-3333-3333-333333333333', 'd1111111-1111-1111-1111-111111111111', 'Calibrate Energy Output', 'Run diagnostic simulations to control thermal spike hazards.', 'todo', '22222222-2222-2222-2222-222222222222', now() - interval '2 hours', now() - interval '2 days')
 ON CONFLICT (id) DO NOTHING;
 
 -- Stark Industries - Mark LXXXV Suite
 INSERT INTO public.tasks (id, project_id, title, description, status, assignee_id, due_date, created_at)
 VALUES 
-('h1111111-1111-1111-1111-111111111111', 'd2222222-2222-2222-2222-222222222222', 'Initialize Nanotech Framework', 'Upload latest control algorithms to nanite matrices.', 'done', '22222222-2222-2222-2222-222222222222', now() - interval '3 days', now() - interval '12 days'),
-('h2222222-2222-2222-2222-222222222222', 'd2222222-2222-2222-2222-222222222222', 'Integrate F.R.I.D.A.Y. Interface', 'Link target tracking and sensor feeds to voice HUD.', 'in_progress', '22222222-2222-2222-2222-222222222222', now() + interval '1 day', now() - interval '5 days'),
-('h3333333-3333-3333-3333-333333333333', 'd2222222-2222-2222-2222-222222222222', 'Stress-Test Flight Stabilizers', 'Execute high-g turns and deceleration maneuvers in wind tunnel.', 'todo', null, now() - interval '4 hours', now() - interval '3 days'),
-('h4444444-4444-4444-4444-444444444444', 'd2222222-2222-2222-2222-222222222222', 'Deploy Vibranium Coating', 'Apply final outer shielding for advanced impact protection.', 'todo', '22222222-2222-2222-2222-222222222222', now() + interval '5 days', now() - interval '1 day')
+('81111111-1111-1111-1111-111111111111', 'd2222222-2222-2222-2222-222222222222', 'Initialize Nanotech Framework', 'Upload latest control algorithms to nanite matrices.', 'done', '22222222-2222-2222-2222-222222222222', now() - interval '3 days', now() - interval '12 days'),
+('82222222-2222-2222-2222-222222222222', 'd2222222-2222-2222-2222-222222222222', 'Integrate F.R.I.D.A.Y. Interface', 'Link target tracking and sensor feeds to voice HUD.', 'in_progress', '22222222-2222-2222-2222-222222222222', now() + interval '1 day', now() - interval '5 days'),
+('83333333-3333-3333-3333-333333333333', 'd2222222-2222-2222-2222-222222222222', 'Stress-Test Flight Stabilizers', 'Execute high-g turns and deceleration maneuvers in wind tunnel.', 'todo', null, now() - interval '4 hours', now() - interval '3 days'),
+('84444444-4444-4444-4444-444444444444', 'd2222222-2222-2222-2222-222222222222', 'Deploy Vibranium Coating', 'Apply final outer shielding for advanced impact protection.', 'todo', '22222222-2222-2222-2222-222222222222', now() + interval '5 days', now() - interval '1 day')
 ON CONFLICT (id) DO NOTHING;
