@@ -81,7 +81,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
-                  placeholder="••••••••"
+                  placeholder="********"
                   className="w-full pl-4 pr-10 py-3 rounded-lg bg-zinc-950 border border-zinc-800 focus:border-purple-500 text-white placeholder-zinc-600 outline-none transition duration-200 focus:ring-2 focus:ring-purple-500/20"
                 />
                 <button
